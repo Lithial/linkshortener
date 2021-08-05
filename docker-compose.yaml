@@ -1,0 +1,63 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres:13.1
+    environment:
+      - POSTGRES_USER=$PGUSER
+      - POSTGRES_PASSWORD=$PGPASS
+      - POSTGRES_DB=$PGDB
+    ports:
+      - $PGPORT:$PGPORT
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+      - ./db/docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    restart: always
+    command: -p $PGPORT
+
+  pgadmin:
+    image: dpage/pgadmin4:4.18
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: $PGADMIN_EMAIL
+      PGADMIN_DEFAULT_PASSWORD: $PGADMIN_PASSWORD
+      PGADMIN_LISTEN_PORT: $PGADMIN_PORT
+    ports:
+      - "5050:9000"
+    logging:
+      driver: none
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+  node:
+    depends_on:
+      - db
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - PGHOST=db
+      - PGPORT=$PGPORT
+      - PGUSER=$PGUSER
+      - PGPASSWORD=$PGPASS
+      - PGDATABASE=$PGDB
+    ports:
+    - $API_PORT:$API_PORT
+    volumes:
+      - ./backend:/backend
+      - ./logs:/root/.npm/_logs/
+    stdin_open: true
+  react:
+    depends_on:
+      - node
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - $UI_PORT:$UI_PORT
+    volumes:
+      - ./frontend:/frontend
+    stdin_open: true
+volumes:
+  db-data:
+  pgadmin-data:

@@ -16,5 +16,6 @@ module.exports = Config = {
     pgHost: process.env.PGHOST,
     pgDb: process.env.PGDB,
     pgPass: process.env.PGPASS,
-    pgPort: process.env.PGPORT
+    pgPort: process.env.PGPORT,
+    api_port:process.env.API_PORT
 }

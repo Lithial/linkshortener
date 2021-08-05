@@ -5,10 +5,10 @@ async function startServer(){
     const app = express();
 
     await init(app,config)
-    app.listen(3001,() =>{
+    app.listen(config.api_port,() =>{
         console.log(`
 ################################################
-🛡️  Server listening on port: 3001 🛡️
+🛡️  Server listening on port: ${config.api_port} 🛡️
 ################################################
         `
         )
